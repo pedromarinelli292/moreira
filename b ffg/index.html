@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Temperatura por Ciudad</title>
+</head>
+<body>
+
+<h1>🌡️ Consulta de Temperatura</h1>
+<p>Abrí la consola del navegador (F12) para ver los resultados.</p>
+
+<script>
+
+async function consultarTemperatura() {
+
+const ciudad = prompt("Ingresá una ciudad (ejemplo: Miami, Buenos Aires, Tokyo):");
+
+if (ciudad === null || ciudad === "") {
+console.log("❌ Cancelaste o dejaste el campo vacío.");
+return;
+}
+
+try {
+
+const respuestaCiudad = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${ciudad}`);
+const datosCiudad = await respuestaCiudad.json();
+
+if (datosCiudad.length === 0) {
+console.log("❌ No se encontró la ciudad. Intentá con otro nombre.");
+return;
+}
+
+const latitud = datosCiudad[0].lat;
+const longitud = datosCiudad[0].lon;
+
+console.log(`📍 Coordenadas de ${ciudad}: lat ${latitud}, lon ${longitud}`);
+
+const respuestaClima = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitud}&longitude=${longitud}&current_weather=true`);
+const datosClima = await respuestaClima.json();
+
+const temperatura = datosClima.current_weather.temperature;
+
+console.log(`🌡️ La temperatura en ${ciudad} es: ${temperatura}°C`);
+
+} catch (error) {
+console.log("💥 Ocurrió un error inesperado:", error.message);
+}
+}
+
+consultarTemperatura();
+
+</script>
+
+</body>
+</html>
